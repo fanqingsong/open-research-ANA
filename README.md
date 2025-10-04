@@ -19,59 +19,66 @@ This projects uses the following tools:
 
 - [pnpm](https://pnpm.io/installation)
 - [Docker](https://docs.docker.com/get-docker/)
-- [Langgraph CLI](https://langchain-ai.github.io/langgraph/cloud/reference/cli/)
+- [Docker Compose](https://docs.docker.com/compose/)
 
 ### 2. API Keys Needed
 Running locally, you'll need the following API keys:
 
-- [OpenAI](https://platform.openai.com/api-keys)
+- [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service) (推荐)
 - [Tavily](https://tavily.com/#pricing)
 - [LangSmith](https://docs.smith.langchain.com/administration/how_to_guides/organization_management/create_account_api_key)
-- [CopilotKit](https://cloud.copilotkit.ai)
 
-### 3. Start the Agent
-There are two main components to this project: the agent and the frontend. First, we'll start the agent.
+### 3. 环境配置
+创建环境配置文件：
 
 ```bash
-cd agent
+# 复制环境变量模板
+cp env.example .env
 
-# Create and populate .env
-cat << EOF > .env
-OPENAI_API_KEY=your_key
-TAVILY_API_KEY=your_key
-LANGSMITH_API_KEY=your_key
-EOF
-
-## Start the agent
-langgraph up
-
-# Note the API URL from the output (e.g., http://localhost:8123)
+# 编辑 .env 文件，填入你的 API 密钥
+nano .env
 ```
 
-### 4. Open a tunnel to your local agent
-Create a tunnel to your local agent:
+### 4. 启动应用
+使用 Docker Compose 一键启动所有服务：
+
 ```bash
-npx copilotkit@latest dev --port 8123
+# 启动所有服务
+docker compose up -d
+
+# 查看服务状态
+docker compose ps
+
+# 查看日志
+docker compose logs -f
 ```
 
-### 5. Start the Frontend
-Next, we'll start the frontend.
+### 5. 访问应用
+- 前端应用: http://localhost:3000
+- 代理服务: http://localhost:8123
+
+## 开发模式 🛠️
+
+如果需要开发模式（支持热重载）：
 
 ```bash
-cd frontend
-pnpm install
+# 启动开发环境
+docker compose -f docker-compose.dev.yml up -d
 
-# Create and populate .env
-cat << EOF > .env
-OPENAI_API_KEY=your_openai_key
-LANGSMITH_API_KEY=your_langsmith_key
-NEXT_PUBLIC_COPILOT_CLOUD_API_KEY=your_copilot_cloud_key
-EOF
+# 查看开发环境日志
+docker compose -f docker-compose.dev.yml logs -f
+```
 
-# Start the app
-pnpm run dev
+## 停止服务 🛑
+
+```bash
+# 停止所有服务
+docker compose down
+
+# 停止并删除所有数据
+docker compose down -v
 ```
 
 ## Documentation 📚
 - [CopilotKit Docs](https://docs.copilotkit.ai/coagents)
-- [LangGraph Platform Docs](https://langchain-ai.github.io/langgraph/cloud/deployment/cloud/)
+- [LangGraph Docs](https://langchain-ai.github.io/langgraph/)

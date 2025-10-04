@@ -1,0 +1,57 @@
+# Python Agent Dockerfile
+FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/python:3.12-slim AS base
+
+# Configure APT to use Chinese mirrors
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources || \
+    sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list || \
+    sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Configure pip to use Chinese mirrors
+RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
+    pip config set global.trusted-host pypi.tuna.tsinghua.edu.cn
+
+# Install uv for faster package management
+RUN pip install uv
+
+# Dependencies stage - only rebuild when dependencies change
+FROM base AS deps
+WORKDIR /app
+
+# Copy requirements file
+COPY agent/requirements.txt ./
+
+# Install dependencies using uv for faster installation
+RUN uv pip install --system --index-url https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn \
+    -r requirements.txt
+
+# Production stage
+FROM base AS runner
+WORKDIR /app
+
+# Copy installed dependencies from deps stage
+COPY --from=deps /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=deps /usr/local/bin /usr/local/bin
+
+# Copy agent source code
+COPY agent/ ./
+
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash app \
+    && chown -R app:app /app
+USER app
+
+# Expose port
+EXPOSE 8123
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# Run the agent using FastAPI server
+CMD ["python", "server.py"]

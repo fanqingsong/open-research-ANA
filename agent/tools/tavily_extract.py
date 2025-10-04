@@ -2,7 +2,7 @@ from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 from tavily import AsyncTavilyClient
 from typing import List, Optional, Dict
-from copilotkit.langchain import copilotkit_emit_state
+# Removed copilotkit import as we're using FastAPI server instead
 from langchain_core.runnables import RunnableConfig
 
 tavily_client = AsyncTavilyClient()
@@ -37,7 +37,7 @@ async def tavily_extract(urls, state):
             "message": "🚀 Extracting additional content from valuable sources",
             "done": True
         })
-        await copilotkit_emit_state(config, state)
+        # Removed copilotkit_emit_state as we're using FastAPI server instead
         return state, tool_msg
 
     except Exception as e:

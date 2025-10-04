@@ -1,5 +1,5 @@
 import asyncio
-from copilotkit.langchain import copilotkit_emit_state
+# Removed copilotkit import as we're using FastAPI server instead
 from datetime import datetime
 from dotenv import load_dotenv
 import json
@@ -40,13 +40,13 @@ async def tavily_search(sub_queries: List[TavilyQuery], state):
             tavily_response = await tavily_client.search(query=query_with_date, topic=topic, days=itm.days, max_results=10)
             state["logs"][index]["done"] = True
             tavily_response['results'] = [search for search in tavily_response['results'] if search['score'] > 0.45]
-            await copilotkit_emit_state(config, state)
+            # Removed copilotkit_emit_state as we're using FastAPI server instead
             return tavily_response['results']
         except Exception as e:
             # Handle any exceptions, log them, and return an empty list
             print(f"Error occurred during search for query '{itm.query}': {str(e)}")
             state["logs"][index]["done"] = True
-            await copilotkit_emit_state(config, state)
+            # Removed copilotkit_emit_state as we're using FastAPI server instead
             return []
 
     config = RunnableConfig()
@@ -57,7 +57,7 @@ async def tavily_search(sub_queries: List[TavilyQuery], state):
             "message": f"🌐 Searching the web: '{query.query}'",
             "done": False
         })
-    await copilotkit_emit_state(config, state)
+    # Removed copilotkit_emit_state as we're using FastAPI server instead
 
     # Run all the search tasks in parallel
     search_tasks = [perform_search(query, i) for i, query in enumerate(sub_queries)]
@@ -74,7 +74,7 @@ async def tavily_search(sub_queries: List[TavilyQuery], state):
                 tool_msg += json.dumps(source)
 
         state["logs"][i]["done"] = True
-        await copilotkit_emit_state(config, state)
+        # Removed copilotkit_emit_state as we're using FastAPI server instead
 
     for key,val in sources.items():
         if not sources[key].get('title',None):

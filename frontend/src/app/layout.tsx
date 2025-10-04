@@ -40,7 +40,7 @@ export default function RootLayout({
                         // local
                         "/api/copilotkit"}
                     showDevConsole={false}
-                    agent="agent"
+                    agent="sample_agent"
                 >
                     <TooltipProvider>
                         <ResearchProvider>

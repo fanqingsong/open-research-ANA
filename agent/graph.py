@@ -7,7 +7,7 @@ from langchain_core.messages import AIMessage, SystemMessage, HumanMessage, Tool
 from langgraph.graph import StateGraph
 from langgraph.types import Command, interrupt
 from langchain_core.runnables import RunnableConfig
-from copilotkit.langchain import copilotkit_emit_state, copilotkit_customize_config
+# Removed copilotkit imports as we're using FastAPI server instead
 from langchain_core.tools import tool
 
 from state import ResearchState
@@ -29,10 +29,13 @@ def review_proposal(proposal: str) -> str:
     pass
 
 class ResearchAgent:
-    def __init__(self):
+    def __init__(self, checkpointer=None):
         """
         Initialize the ResearchAgent.
+        Args:
+            checkpointer: Optional checkpointer for state persistence
         """
+        self.checkpointer = checkpointer
         self._initialize_tools()
         self._build_workflow()
 
@@ -60,7 +63,11 @@ class ResearchAgent:
         workflow.add_edge("tool_node", "call_model_node")
         workflow.add_edge("process_feedback_node", "call_model_node")
 
-        self.graph = workflow.compile()
+        # Compile with checkpointer if provided
+        if self.checkpointer:
+            self.graph = workflow.compile(checkpointer=self.checkpointer)
+        else:
+            self.graph = workflow.compile()
 
     def _build_system_prompt(self, state: ResearchState) -> str:
         """
@@ -147,7 +154,7 @@ class ResearchAgent:
         Custom asynchronous tool node that can access and update agent state. This is necessary
         because tools cannot access or update state directly.
         """
-        config = copilotkit_customize_config(config, emit_messages=False) # Disable emitting messages to the frontend since these messages will be intermediate
+        # Removed copilotkit_customize_config as we're using FastAPI server instead
 
         msgs = []
         tool_state = {}
@@ -181,7 +188,7 @@ class ResearchAgent:
                 "tool": new_state.get("tool", {}),
                 "messages": msgs
             }
-            await copilotkit_emit_state(config, tool_state)
+            # Removed copilotkit_emit_state as we're using FastAPI server instead
 
         return tool_state
 

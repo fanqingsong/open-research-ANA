@@ -8,7 +8,7 @@ from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 import random
 import string
-from copilotkit.langchain import copilotkit_customize_config, copilotkit_emit_state
+# Removed copilotkit imports as we're using FastAPI server instead
 
 @tool
 def WriteSection(title: str, content: str, section_number: int, footer: str = ""): # pylint: disable=invalid-name,unused-argument
@@ -35,7 +35,7 @@ async def section_writer(research_query, section_title, idx, state):
         "message": f"📝 Writing the {section_title} section...",
         "done": False
     })
-    await copilotkit_emit_state(config, state)
+    # Removed copilotkit_emit_state as we're using FastAPI server instead
 
     section_id = generate_random_id()
     section = {
@@ -57,7 +57,8 @@ async def section_writer(research_query, section_title, idx, state):
         "tool_argument": "footer"
     }
 
-    config = copilotkit_customize_config(
+    # Removed copilotkit_customize_config as we're using FastAPI server instead
+    config = RunnableConfig(
         config,
         emit_intermediate_state=[content_state, footer_state]
     )
@@ -154,7 +155,7 @@ async def section_writer(research_query, section_title, idx, state):
         response = await model.bind_tools([WriteSection]).ainvoke(lc_messages, config)
 
         state["logs"][-1]["done"] = True
-        await copilotkit_emit_state(config, state)
+        # Removed copilotkit_emit_state as we're using FastAPI server instead
 
         ai_message = cast(AIMessage, response)
         if ai_message.tool_calls:
@@ -177,7 +178,7 @@ async def section_writer(research_query, section_title, idx, state):
         for stream_type, stream_info in stream_states.items():
             if stream_info["state_key"] in state:
                 state[stream_info["state_key"]] = None
-        await copilotkit_emit_state(config, state)
+        # Removed copilotkit_emit_state as we're using FastAPI server instead
 
         tool_msg = f"Wrote the {section_title} Section, idx: {idx}"
 
@@ -186,6 +187,6 @@ async def section_writer(research_query, section_title, idx, state):
 
         # Clear logs
         state["logs"] = []
-        await copilotkit_emit_state(config, state)
+        # Removed copilotkit_emit_state as we're using FastAPI server instead
 
         return state, f"Error generating section: {e}"

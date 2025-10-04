@@ -7,7 +7,7 @@ from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 from langchain_openai import ChatOpenAI
 
-from copilotkit.langchain import copilotkit_emit_state
+# Removed copilotkit import as we're using FastAPI server instead
 from langchain_core.runnables import RunnableConfig
 
 
@@ -92,14 +92,14 @@ async def outline_writer(research_query, state):
         "message": "💭 Thinking of a research proposal",
         "done": False
     })
-    await copilotkit_emit_state(config, state)
+    # Removed copilotkit_emit_state as we're using FastAPI server instead
 
     state["logs"].append({
         "message": "✨ Generating a research proposal outline",
         "done": False
     })
     state["logs"][-2]["done"] = True
-    await copilotkit_emit_state(config, state)
+    # Removed copilotkit_emit_state as we're using FastAPI server instead
 
     try:
 
@@ -112,7 +112,7 @@ async def outline_writer(research_query, state):
 
         for i, log in enumerate(state["logs"]):
             state["logs"][i]["done"] = True
-        await copilotkit_emit_state(config, state)
+        # Removed copilotkit_emit_state as we're using FastAPI server instead
 
         proposal = json.loads(response)
 
@@ -130,7 +130,7 @@ async def outline_writer(research_query, state):
 
         # Clear logs
         state["logs"] = []
-        await copilotkit_emit_state(config, state)
+        # Removed copilotkit_emit_state as we're using FastAPI server instead
 
         return state, tool_msg
     except Exception as e:
@@ -146,6 +146,6 @@ async def outline_writer(research_query, state):
 
         # Clear logs
         state["logs"] = []
-        await copilotkit_emit_state(config, state)
+        # Removed copilotkit_emit_state as we're using FastAPI server instead
 
         return state, f"Error generating outline proposal: {e}"
